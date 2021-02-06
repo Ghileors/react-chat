@@ -1,10 +1,11 @@
-const {Schema, model, Types} = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 const MessageSchema = new Schema(
   {
     content: { type: String },
-    date: { type: Date, default: Date.now},
-    owner: { type: Types.ObjectId, ref: 'UserModel' },
+    date: { type: Date, default: Date.now },
+    name: { type: String },
+    color: { type: String }
   },
   {
     versionKey: false,

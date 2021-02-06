@@ -45,7 +45,7 @@ exports.login = async (req, res) => {
         { id: admin.id, admin: admin.isAdmin, name: admin.name },
         process.env.JWT_SECRET_KEY,
         {
-          expiresIn: '1h',
+          expiresIn: '1 day',
         },
       );
       res.json({ token });
@@ -71,7 +71,7 @@ exports.login = async (req, res) => {
         { id: user.id, admin: user.isAdmin, name: user.name },
         process.env.JWT_SECRET_KEY,
         {
-          expiresIn: '1h',
+          expiresIn: '1 day',
         },
       );
 
@@ -100,7 +100,7 @@ exports.login = async (req, res) => {
           { id: candidate.id, admin: candidate.isAdmin, name: candidate.name },
           process.env.JWT_SECRET_KEY,
           {
-            expiresIn: '1h',
+            expiresIn: '1 day',
           },
         );
         res.json({ token });

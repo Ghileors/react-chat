@@ -1,4 +1,4 @@
-import {useState, useCallback, useEffect} from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 const storageName = 'userData';
 
@@ -13,6 +13,7 @@ export const useAuth = () => {
     setUserName(name);
     setAdmin(isAdmin);
 
+    console.log("TOKEN CREATED!");
     localStorage.setItem(storageName, JSON.stringify({
       userName: name, token: jwtToken, admin: isAdmin
     }));
