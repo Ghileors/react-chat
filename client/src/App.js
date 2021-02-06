@@ -8,6 +8,13 @@ import 'materialize-css';
 function App() {
   const { token, userName, admin, login, logout } = useAuth();
   const isAuthenticated = !!token;
+
+  if (isAuthenticated) {
+    localStorage.setItem("userData", JSON.stringify({
+      userName, token, admin,
+    }));
+  }
+
   const routes = useRoutes(isAuthenticated);
 
   return (

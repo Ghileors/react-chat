@@ -13,7 +13,6 @@ export const useAuth = () => {
     setUserName(name);
     setAdmin(isAdmin);
 
-    console.log("TOKEN CREATED!");
     localStorage.setItem(storageName, JSON.stringify({
       userName: name, token: jwtToken, admin: isAdmin
     }));

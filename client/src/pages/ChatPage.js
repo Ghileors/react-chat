@@ -1,4 +1,3 @@
-// eslint-disable-next-line
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
@@ -14,7 +13,6 @@ export const ChatPage = () => {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
 
-  console.log("GET TOKEN!");
   const token = JSON.parse(localStorage.getItem("userData")).token;
 
   const newSocket = io(ENDPOINT, {
@@ -33,8 +31,7 @@ export const ChatPage = () => {
     newSocket.on('users', (data) => {
       setUsers(data)
     });
-    // eslint-disable-next-line
-  }, []);
+  }, [setMessages, setMessages, setUsers]);
 
   const sendMessage = (event) => {
     event.preventDefault();

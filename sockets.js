@@ -19,13 +19,12 @@ module.exports = io => {
   io.on("connection", async (socket) => {
     const token = socket.handshake.query.token;
     const user = await UserModel.findOne({ _id: socket.userId });
-
     const users = user.get("isAdmin") ? await UserModel.find() : await UserModel.find({ isOnline: true });
+    const messages = await MessageModel.find();
 
     socket.emit('users', users);
 
     //messages sockets
-    const messages = await MessageModel.find();
     socket.emit('messages', messages);
 
     socket.on('sendMessage', (message, callback) => {
@@ -40,7 +39,7 @@ module.exports = io => {
       const SendNow = Date.now(newMessage.get("date"));
 
       const sender = MessageModel.find({ name: user.get("name") });
-      console.log(sender)
+      console.log(sender.model)
 
       if (!user.get("isMuted")) {
         io.sockets.emit('message', newMessage);
