@@ -1,5 +1,4 @@
 import React from 'react';
-
 import MessagesItem from './MessagesItem'
 
 export default function ChatWindow({ messages }) {

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-require("dotenv").config();
+const config = require('./config/config');
 
 const MessageModel = require('./models/Message');
 const UserModel = require('./models/User');
@@ -8,7 +8,7 @@ module.exports = io => {
   io.use(async (socket, next) => {
     try {
       const token = socket.handshake.query.token;
-      const payload = await jwt.verify(token, process.env.JWT_SECRET_KEY);
+      const payload = await jwt.verify(token, config.jwt.secretOrKey);
       socket.userId = payload.id;
       next();
     } catch (err) {

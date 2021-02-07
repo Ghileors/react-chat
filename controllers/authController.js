@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const config = require('../config/config');
 
 const UserModel = require('../models/User');
 
@@ -43,7 +44,7 @@ exports.login = async (req, res) => {
 
       const token = jwt.sign(
         { id: admin.id, admin: admin.isAdmin, name: admin.name },
-        process.env.JWT_SECRET_KEY,
+        config.jwt.secretOrKey,
         {
           expiresIn: '1 day',
         },
@@ -69,7 +70,7 @@ exports.login = async (req, res) => {
 
       const token = jwt.sign(
         { id: user.id, admin: user.isAdmin, name: user.name },
-        process.env.JWT_SECRET_KEY,
+        config.jwt.secretOrKey,
         {
           expiresIn: '1 day',
         },
@@ -98,7 +99,7 @@ exports.login = async (req, res) => {
       try {
         const token = jwt.sign(
           { id: candidate.id, admin: candidate.isAdmin, name: candidate.name },
-          process.env.JWT_SECRET_KEY,
+          config.jwt.secretOrKey,
           {
             expiresIn: '1 day',
           },

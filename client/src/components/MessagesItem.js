@@ -1,6 +1,13 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export default function MessagesItem({ messages }) {
+   const messagesEndRef = useRef(null);
+   const scrollToBottom = () => {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+   }
+   useEffect(() => {
+      scrollToBottom()
+   }, [messages]);
    return (
       <>
          {messages.map(message => (
@@ -9,6 +16,7 @@ export default function MessagesItem({ messages }) {
                <p style={{ color: message.color }} className="text">{message.content}</p>
             </li>
          ))}
+         <div ref={messagesEndRef} />
       </>
    );
 };
