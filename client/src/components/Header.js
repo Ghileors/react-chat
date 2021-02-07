@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext';
 
-export default function Header() {
+export default function Header({ socket }) {
     const history = useHistory();
     const auth = useContext(AuthContext);
 

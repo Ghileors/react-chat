@@ -104,6 +104,7 @@ exports.login = async (req, res) => {
             expiresIn: '1 day',
           },
         );
+        await UserModel.findOneAndUpdate({ name: candidate.name }, { isOnline: true });
         res.json({ token });
         return res.status(200).send({ message: 'User login success.' });
       } catch (err) { }

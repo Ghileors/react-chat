@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useHistory } from 'react-router-dom'
+import { AuthContext } from '../context/AuthContext';
 import io from 'socket.io-client';
 
 import Header from '../components/Header';
@@ -8,18 +10,21 @@ import ChatForm from '../components/ChatForm';
 
 const ENDPOINT = "ws://localhost:5050";
 
+const item = JSON.parse(localStorage.getItem("userData"));
+const token = item ? item.token : null;
+
+const newSocket = io(ENDPOINT, {
+  query: {
+    token
+  },
+});
+
 export const ChatPage = () => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
-
-  const token = JSON.parse(localStorage.getItem("userData")).token;
-
-  const newSocket = io(ENDPOINT, {
-    query: {
-      token
-    },
-  });
+  const history = useHistory();
+  const auth = useContext(AuthContext);
 
   useEffect(() => {
     newSocket.on('message', message => {
@@ -31,7 +36,11 @@ export const ChatPage = () => {
     newSocket.on('users', (data) => {
       setUsers(data)
     });
-  }, [setMessages, setMessages, setUsers]);
+    newSocket.on('logout', () => {
+      auth.logout();
+      history.push('/')
+    })
+  }, [setMessages, setUsers, auth, history]);
 
   const sendMessage = (event) => {
     event.preventDefault();

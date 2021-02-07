@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const config = require('./config/config');
+const { findOne } = require('./models/Message');
 
 const MessageModel = require('./models/Message');
 const UserModel = require('./models/User');
@@ -12,7 +13,7 @@ module.exports = io => {
       socket.userId = payload.id;
       next();
     } catch (err) {
-      console.log(`error:`, err.message)
+      // console.log(`error:`, err.message)
     }
   });
 
@@ -28,66 +29,58 @@ module.exports = io => {
     socket.emit('messages', messages);
 
     socket.on('sendMessage', (message, callback) => {
-      newMessage = new MessageModel({
-        content: message,
-        name: user.get("name"),
-        color: user.get("color")
-      });
+      if (message.length > 200 || user.get("isMuted")) {
+        return;
+      }
 
-      newMessage.save();
+      MessageModel.findOne({ name: user.get("name") }, {}, { sort: { 'date': -1 } }, function (_, post) {
+        newMessage = new MessageModel({
+          content: message,
+          name: user.get("name"),
+          color: user.get("color")
+        });
 
-      const SendNow = Date.now(newMessage.get("date"));
+        if (post) {
+          const diff = (newMessage.get("date") - post.date) / 1000;
 
-      const sender = MessageModel.find({ name: user.get("name") });
-      console.log(sender.model)
+          if (diff < 15) {
+            return;
+          }
+        }
 
-      if (!user.get("isMuted")) {
+        newMessage.save();
+
         io.sockets.emit('message', newMessage);
-      };
-
-      socket.emit('muteWarning');
+      });
 
       callback();
     });
 
     if (user.isAdmin) {
-      socket.on('ban', (userId) => {
-        UserModel.findByIdAndUpdate(userId, { isBanned: false },
-          function (err, docs) {
-            if (err) {
-              console.log(err)
-            }
-            else {
-              console.log("Banned User : ", docs);
-            }
-          });
-        // 2. find and diconnect user
+      socket.on('ban', async (userId) => {
+        io.sockets.sockets.forEach((key) => {
+          const targetSocket = io.sockets.sockets.get(key.id);
+
+          if (targetSocket.userId == userId) {
+            targetSocket.emit('logout');
+            targetSocket.disconnect();
+            console.log(`User ${key.id} disconnected!`);
+          }
+        });
+
+        const u = await UserModel.findOne({ _id: userId });
+        UserModel.findByIdAndUpdate(userId, { isBanned: !u.get("isBanned"), isOnline: false }, () => { });
       });
 
-      socket.on('mute', (userId) => {
-        UserModel.findByIdAndUpdate(userId, { isMuted: false },
-          function (err, docs) {
-            if (err) {
-              console.log(err)
-            }
-            else {
-              console.log("Muted User : ", docs);
-            }
-          });
+      socket.on('mute', async (userId) => {
+        const u = await UserModel.findOne({ _id: userId });
+        UserModel.findByIdAndUpdate(userId, { isMuted: !u.get("isMuted") }, () => { });
       });
+
+      // socket.on('logout', userName => {
+      //   console.log(userName)
+      //   UserModel.findOneAndUpdate(userName, { isOnline: false }, () => { });
+      // });
     }
-
   });
 }
-// 1. check user by token
-// socket.handshake.query.token
-// if token not exists or invalid - disconnect
-// 3. check for admin
-// if user admin - send full users list
-// if simple user - send only online users list
-
-// 2. check user for ban and for exists in db
-// if not exists or user banned - disconnect
-// 1. check users, who send message for mute status
-// 2. check 15sec silent (need read last message from this user from db and compare date)
-// 3. check for 200 lenght
