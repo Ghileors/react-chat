@@ -5,25 +5,6 @@ const config = require('./config/config');
 const MessageModel = require('./models/Message');
 const UserModel = require('./models/User');
 
-function randomColor() {
-  const colors = [
-    'rgb(0,0,128)',
-    'rgb(0,128,0)',
-    'rgb(128,0,0)',
-    'rgb(139,69,0)',
-    'rgb(41,36,33)',
-    'rgb(56,142,142)',
-    'rgb(139,35,35)',
-    'rgb(139,58,58)',
-    'rgb(255,127,80)',
-    'rgb(238,201,0)',
-  ];
-
-  const color = colors[Math.floor(Math.random() * colors.length)];
-
-  return color;
-}
-
 module.exports = io => {
   io.use(async (socket, next) => {
     try {
