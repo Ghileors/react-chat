@@ -1,25 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useHistory } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext';
-import io from 'socket.io-client';
 
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import ChatWindow from '../components/ChatWindow';
 import ChatForm from '../components/ChatForm';
 
-const ENDPOINT = "ws://localhost:5050";
 
-const item = JSON.parse(localStorage.getItem("userData"));
-const token = item ? item.token : null;
-
-const newSocket = io(ENDPOINT, {
-  query: {
-    token
-  },
-});
-
-export const ChatPage = () => {
+export const ChatPage = ({socket}) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
@@ -27,35 +16,35 @@ export const ChatPage = () => {
   const auth = useContext(AuthContext);
 
   useEffect(() => {
-    newSocket.on('message', message => {
+    socket.on('message', message => {
       setMessages(messages => [...messages, message]);
     });
-    newSocket.on('messages', (data) => {
+    socket.on('messages', (data) => {
       setMessages(data)
     });
-    newSocket.on('users', (data) => {
+    socket.on('users', (data) => {
       setUsers(data)
     });
-    newSocket.on('logout', () => {
+    socket.on('logout', () => {
       auth.logout();
       history.push('/')
     })
-  }, [setMessages, setUsers, auth, history]);
+  }, [setMessages, setUsers, auth, history, socket]);
 
   const sendMessage = (event) => {
     event.preventDefault();
 
     if (message) {
-      newSocket.emit('sendMessage', message, () => setMessage(''));
+      socket.emit('sendMessage', message, () => setMessage(''));
     }
   }
 
   const muteUser = id => {
-    newSocket.emit('mute', id);
+    socket.emit('mute', id);
   }
 
   const banUser = id => {
-    newSocket.emit('ban', id);
+    socket.emit('ban', id);
   }
 
   return (

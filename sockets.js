@@ -71,18 +71,22 @@ module.exports = io => {
           }
         });
 
-        const u = await UserModel.findOne({ _id: userId });
-        UserModel.findByIdAndUpdate(userId, { isBanned: !u.get("isBanned"), isOnline: false }, () => { });
+        const bannedUser = await UserModel.findById({ _id: userId });
+        UserModel.findByIdAndUpdate(userId, { isBanned: !bannedUser.get("isBanned"), isOnline: false }, () => { });
       });
 
       socket.on('mute', async (userId) => {
-        const u = await UserModel.findOne({ _id: userId });
-        UserModel.findByIdAndUpdate(userId, { isMuted: !u.get("isMuted") }, () => { });
+        const mutedUser = await UserModel.findById({ _id: userId });
+        UserModel.findByIdAndUpdate(userId, { isMuted: !mutedUser.get("isMuted") }, () => { });
       });
     }
     // socket.on('logout', userName => {
     //   console.log(userName)
     //   UserModel.findOneAndUpdate(userName, { isOnline: false }, () => { });
     // });
+
+    socket.on('login', user => {
+
+    });
   });
 }
