@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const config = require('./config/config');
 
 const MessageModel = require('./models/Message');
@@ -12,9 +11,7 @@ module.exports = io => {
       const payload = await jwt.verify(token, config.jwt.secretOrKey);
       socket.userId = payload.id;
       next();
-    } catch (err) {
-      // console.log(`Socket token error: ${err.message}`)
-    }
+    } catch (err) { }
   });
 
   io.on("connection", async (socket) => {
@@ -90,36 +87,9 @@ module.exports = io => {
     }
 
     socket.on('logout', () => {
-      UserModel.findByIdAndUpdate(socket.userId, { isOnline: false }, () => { });      
+      UserModel.findByIdAndUpdate(socket.userId, { isOnline: false }, () => { });
       socket.disconnect(true);
     });
 
-    // socket.on('login', async user => {
-    //   const { name, password } = user;
-    //   console.log(name);
-      
-    //   const candidate = await UserModel.findOne({ name });
-    //   try {
-    //     if (candidate && bcrypt.compareSync(password, candidate.password)) {
-    //       try {
-    //         const token = jwt.sign(
-    //           { id: candidate.id, admin: candidate.isAdmin, name: candidate.name },
-    //           config.jwt.secretOrKey,
-    //           {
-    //             expiresIn: '1 day',
-    //           },
-    //         );
-
-    //         io.sockets.emit('token', token);
-
-    //         await UserModel.findOneAndUpdate({ name: candidate.name }, { isOnline: true });
-    //       } catch (err) {
-    //         console.log(`Error from login user ${err.message}`);
-    //       };
-    //     };
-    //   } catch (err) {
-    //     console.log(`Error from user create: ${err.message}`);
-    //   };
-    // });
   });
 };
