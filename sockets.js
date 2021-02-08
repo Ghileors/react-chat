@@ -77,7 +77,7 @@ module.exports = io => {
           if (targetSocket.userId == userId) {
             targetSocket.emit('logout');
             targetSocket.disconnect();
-            console.log(`User ${key.id} disconnected!`);
+            console.log(`Banned user ${key.id} disconnected!`);
           }
         });
 
@@ -90,6 +90,7 @@ module.exports = io => {
         UserModel.findByIdAndUpdate(userId, { isMuted: !mutedUser.get("isMuted") }, () => { });
       });
     }
+
     socket.on('logout', () => {
       UserModel.findByIdAndUpdate(socket.userId, { isOnline: false }, () => { });      
       socket.disconnect(true);

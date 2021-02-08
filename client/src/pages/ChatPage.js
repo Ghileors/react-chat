@@ -38,19 +38,11 @@ export const ChatPage = ({socket}) => {
     }
   }
 
-  const muteUser = id => {
-    socket.emit('mute', id);
-  }
-
-  const banUser = id => {
-    socket.emit('ban', id);
-  }
-
   return (
     <div className="chat-container">
       <Header socket={socket}/>
       <main className="chat-main">
-        <Sidebar users={users} banUser={banUser} muteUser={muteUser} />
+        <Sidebar users={users} socket={socket} />
         <ChatWindow messages={messages} />
       </main>
       <ChatForm message={message} sendMessage={sendMessage} setMessage={setMessage} />
