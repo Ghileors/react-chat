@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const config = require('./config/config');
-const { findOne } = require('./models/Message');
 
 const MessageModel = require('./models/Message');
 const UserModel = require('./models/User');
@@ -13,7 +12,7 @@ module.exports = io => {
       socket.userId = payload.id;
       next();
     } catch (err) {
-      // console.log(`error:`, err.message)
+      // console.log(`Socket token error: ${err.message}`)
     }
   });
 
@@ -23,9 +22,13 @@ module.exports = io => {
     const users = user.get("isAdmin") ? await UserModel.find() : await UserModel.find({ isOnline: true });
     const messages = await MessageModel.find();
 
-    socket.emit('users', users);
+    if (!token || user.get('isBanned')) {
+      socket.disconnect(true);
+      console.log('Administration banned you.')
+    }
 
-    //messages sockets
+    //emit data
+    socket.emit('users', users);
     socket.emit('messages', messages);
 
     socket.on('sendMessage', (message, callback) => {
@@ -76,11 +79,10 @@ module.exports = io => {
         const u = await UserModel.findOne({ _id: userId });
         UserModel.findByIdAndUpdate(userId, { isMuted: !u.get("isMuted") }, () => { });
       });
-
-      // socket.on('logout', userName => {
-      //   console.log(userName)
-      //   UserModel.findOneAndUpdate(userName, { isOnline: false }, () => { });
-      // });
     }
+    // socket.on('logout', userName => {
+    //   console.log(userName)
+    //   UserModel.findOneAndUpdate(userName, { isOnline: false }, () => { });
+    // });
   });
 }

@@ -26,7 +26,9 @@ function randomColor() {
 exports.login = async (req, res) => {
   const { name, password } = req.body;
 
-  if (name.length < 3) throw "Name must be atleast 3 characters long.";
+  const nameRegex = /[^a-zA-Z0-9 ]/;
+
+  if (name.length < 3 || nameRegex.test(name)) throw "Name must be atleast 3 characters long and must not contain scecial characters.";
   if (password.length < 3) throw "Password must be atleast 3 characters long.";
 
   const isAdmin = await UserModel.find();

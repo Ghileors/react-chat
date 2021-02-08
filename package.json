@@ -16,7 +16,8 @@
     "mongodb",
     "express",
     "react",
-    "nodejs"
+    "nodejs",
+    "soket.io"
   ],
   "author": "Polina Slyusareva <ghileors@gmail.com>",
   "license": "ISC",
@@ -27,7 +28,9 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-rate-limit": "^5.2.3",
     "express-validator": "^6.3.0",
+    "helmet": "^4.4.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.8.1",
     "passport": "^0.4.1",
