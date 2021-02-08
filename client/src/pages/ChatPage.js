@@ -48,7 +48,7 @@ export const ChatPage = ({socket}) => {
 
   return (
     <div className="chat-container">
-      <Header />
+      <Header socket={socket}/>
       <main className="chat-main">
         <Sidebar users={users} banUser={banUser} muteUser={muteUser} />
         <ChatWindow messages={messages} />

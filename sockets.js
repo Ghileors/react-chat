@@ -109,9 +109,9 @@ module.exports = io => {
         UserModel.findByIdAndUpdate(userId, { isMuted: !mutedUser.get("isMuted") }, () => { });
       });
     }
-    socket.on('logout', userName => {
-      console.log(userName)
-      UserModel.findOneAndUpdate(userName, { isOnline: false }, () => { });
+    socket.on('logout', () => {
+      UserModel.findByIdAndUpdate(socket.userId, { isOnline: false }, () => { });      
+      socket.disconnect(true);
     });
 
     // socket.on('login', async user => {
