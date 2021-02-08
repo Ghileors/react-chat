@@ -16,7 +16,7 @@ const io = require("socket.io")(server, {
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1 // limit each IP to 1 requests per windowMs
+  max: 10 // limit each IP to 1 requests per windowMs
 });
 
 app.use(cors());

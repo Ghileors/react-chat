@@ -19,34 +19,32 @@ module.exports = io => {
 
   io.on("connection", async (socket) => {
     const token = socket.handshake.query.token;
-    const user = await UserModel.findOne({ _id: socket.userId });
-    const users = user.get("isAdmin") ? await UserModel.find() : await UserModel.find({ isOnline: true });
-    
+    let user = await UserModel.findOne({ _id: socket.userId });
+
     if (!token || user.get('isBanned')) {
       socket.disconnect(true);
       console.log('Administration banned you.')
     }
 
-    //emit data
+    const users = user.get("isAdmin") ? await UserModel.find() : await UserModel.find({ isOnline: true });
     socket.emit('users', users);
-    MessageModel.find({})
-    .sort({ date: -1 })
+    await MessageModel.find({})
+    .sort({ date: 1 })
         .limit(10)
-        .sort({ date: 1 })
         .lean()
         .exec((err, messages) => {
           if (!err) {
             socket.emit("messages", messages);
           }
         });
-    // socket.emit('messages', messages);
 
-    socket.on('sendMessage', (message, callback) => {
+    socket.on('sendMessage', async (message, callback) => {
+      user = await UserModel.findOne({ _id: socket.userId });
       if (message.length > 200 || user.get("isMuted")) {
         return;
       }
 
-      MessageModel.findOne({ name: user.get("name") }, {}, { sort: { 'date': -1 } }, function (_, post) {
+     MessageModel.findOne({ name: user.get("name") }, {}, { sort: { 'date': -1 } }, function (_, post) {
         newMessage = new MessageModel({
           content: message,
           name: user.get("name"),
@@ -82,12 +80,12 @@ module.exports = io => {
         });
 
         const bannedUser = await UserModel.findById({ _id: userId });
-        UserModel.findByIdAndUpdate(userId, { isBanned: !bannedUser.get("isBanned"), isOnline: false }, () => { });
+        UserModel.findByIdAndUpdate(userId, { isBanned: !bannedUser.get("isBanned"), isOnline: false }, () => {});       
       });
 
       socket.on('mute', async (userId) => {
         const mutedUser = await UserModel.findById({ _id: userId });
-        UserModel.findByIdAndUpdate(userId, { isMuted: !mutedUser.get("isMuted") }, () => { });
+        UserModel.findByIdAndUpdate(userId, { isMuted: !mutedUser.get("isMuted") }, () => {});
       });
     }
 
