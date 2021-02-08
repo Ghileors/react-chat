@@ -7,7 +7,6 @@ import Sidebar from '../components/Sidebar';
 import ChatWindow from '../components/ChatWindow';
 import ChatForm from '../components/ChatForm';
 
-
 export const ChatPage = ({socket}) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
@@ -28,7 +27,7 @@ export const ChatPage = ({socket}) => {
     socket.on('logout', () => {
       auth.logout();
       history.push('/')
-    })
+    });
   }, [setMessages, setUsers, auth, history, socket]);
 
   const sendMessage = (event) => {

@@ -11,7 +11,6 @@ function randomColor() {
     'rgb(128,0,0)',
     'rgb(139,69,0)',
     'rgb(41,36,33)',
-    'rgb(56,142,142)',
     'rgb(139,35,35)',
     'rgb(139,58,58)',
     'rgb(255,127,80)',
@@ -55,7 +54,7 @@ exports.login = async (req, res) => {
       return res.status(201).json({ message: 'Admin created' });
 
     } catch (err) {
-      console.log(err.message);
+      console.log(`Error from admin create: ${err.message}`);
     }
   };
 
@@ -112,11 +111,8 @@ exports.login = async (req, res) => {
       } catch (err) { }
     };
   } catch (err) {
-    console.log(err.message);
+    console.log(`Error from user create: ${err.message}`);
   };
 };
 
-exports.post = async (req, res) => {
-  res.status(200).send({ message: 'Logout success.' });
-};
 

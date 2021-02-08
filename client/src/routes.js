@@ -31,7 +31,7 @@ export const useRoutes = isAuthenticated => {
   return (
     <Switch>
       <Route path="/" exact>
-        <AuthPage />
+        <AuthPage socket={newSocket}/>
       </Route>
       <Redirect to="/" />
     </Switch>

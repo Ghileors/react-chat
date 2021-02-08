@@ -3,7 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useHttp } from '../hooks/http.hook';
 import { useMessage } from '../hooks/message.hook';
 
-export const AuthPage = () => {
+export const AuthPage = ({socket}) => {
   const auth = useContext(AuthContext);
   const message = useMessage();
   const { loading, request, error, clearError } = useHttp();
@@ -22,12 +22,17 @@ export const AuthPage = () => {
   };
 
   const loginHandler = async () => {
+    // socket.emit('login', {...form});
+    // socket.on('token', token => {
+    //   console.log(token);
+    // });
+    
     try {
       const data = await request('/api/auth/login', 'POST', { ...form });
       message(data.message);
       auth.login(data.token, data.userName, data.admin);
     } catch (err) {
-      console.log(err.message)
+      console.log(`Error from post request: ${err.message}`)
     };
   };
 

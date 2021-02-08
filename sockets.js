@@ -1,8 +1,28 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const config = require('./config/config');
 
 const MessageModel = require('./models/Message');
 const UserModel = require('./models/User');
+
+function randomColor() {
+  const colors = [
+    'rgb(0,0,128)',
+    'rgb(0,128,0)',
+    'rgb(128,0,0)',
+    'rgb(139,69,0)',
+    'rgb(41,36,33)',
+    'rgb(56,142,142)',
+    'rgb(139,35,35)',
+    'rgb(139,58,58)',
+    'rgb(255,127,80)',
+    'rgb(238,201,0)',
+  ];
+
+  const color = colors[Math.floor(Math.random() * colors.length)];
+
+  return color;
+}
 
 module.exports = io => {
   io.use(async (socket, next) => {
@@ -20,8 +40,7 @@ module.exports = io => {
     const token = socket.handshake.query.token;
     const user = await UserModel.findOne({ _id: socket.userId });
     const users = user.get("isAdmin") ? await UserModel.find() : await UserModel.find({ isOnline: true });
-    const messages = await MessageModel.find();
-
+    
     if (!token || user.get('isBanned')) {
       socket.disconnect(true);
       console.log('Administration banned you.')
@@ -29,7 +48,17 @@ module.exports = io => {
 
     //emit data
     socket.emit('users', users);
-    socket.emit('messages', messages);
+    MessageModel.find({})
+    .sort({ date: -1 })
+        .limit(10)
+        .sort({ date: 1 })
+        .lean()
+        .exec((err, messages) => {
+          if (!err) {
+            socket.emit("messages", messages);
+          }
+        });
+    // socket.emit('messages', messages);
 
     socket.on('sendMessage', (message, callback) => {
       if (message.length > 200 || user.get("isMuted")) {
@@ -80,13 +109,37 @@ module.exports = io => {
         UserModel.findByIdAndUpdate(userId, { isMuted: !mutedUser.get("isMuted") }, () => { });
       });
     }
-    // socket.on('logout', userName => {
-    //   console.log(userName)
-    //   UserModel.findOneAndUpdate(userName, { isOnline: false }, () => { });
-    // });
-
-    socket.on('login', user => {
-
+    socket.on('logout', userName => {
+      console.log(userName)
+      UserModel.findOneAndUpdate(userName, { isOnline: false }, () => { });
     });
+
+    // socket.on('login', async user => {
+    //   const { name, password } = user;
+    //   console.log(name);
+      
+    //   const candidate = await UserModel.findOne({ name });
+    //   try {
+    //     if (candidate && bcrypt.compareSync(password, candidate.password)) {
+    //       try {
+    //         const token = jwt.sign(
+    //           { id: candidate.id, admin: candidate.isAdmin, name: candidate.name },
+    //           config.jwt.secretOrKey,
+    //           {
+    //             expiresIn: '1 day',
+    //           },
+    //         );
+
+    //         io.sockets.emit('token', token);
+
+    //         await UserModel.findOneAndUpdate({ name: candidate.name }, { isOnline: true });
+    //       } catch (err) {
+    //         console.log(`Error from login user ${err.message}`);
+    //       };
+    //     };
+    //   } catch (err) {
+    //     console.log(`Error from user create: ${err.message}`);
+    //   };
+    // });
   });
-}
+};
