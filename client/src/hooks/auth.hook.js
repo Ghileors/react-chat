@@ -13,11 +13,15 @@ export const useAuth = () => {
     setUserName(name);
     setAdmin(isAdmin);
 
-    localStorage.setItem(storageName, JSON.stringify({
-      userName: name, token: jwtToken, admin: isAdmin
-    }));
+    localStorage.setItem(
+      storageName,
+      JSON.stringify({
+        userName: name,
+        token: jwtToken,
+        admin: isAdmin,
+      }),
+    );
   }, []);
-
 
   const logout = useCallback(() => {
     setToken(null);
@@ -33,7 +37,6 @@ export const useAuth = () => {
     }
     setReady(true);
   }, [login]);
-
 
   return { login, logout, token, userName, admin, ready };
 };

@@ -1,13 +1,29 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import ChatWindow from '../components/ChatWindow';
 import ChatForm from '../components/ChatForm';
+import io from 'socket.io-client';
 
-export const ChatPage = ({socket}) => {
+const ENDPOINT = 'ws://localhost:5050';
+
+let item, socket;
+
+export const ChatPage = () => {
+  if (!item || !socket) {
+    item = JSON.parse(localStorage.getItem('userData'));
+    const token = item ? item.token : null;
+    console.log(token);
+    socket = io(ENDPOINT, {
+      query: {
+        token,
+      },
+    });
+  }
+
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
@@ -18,34 +34,41 @@ export const ChatPage = ({socket}) => {
     socket.on('message', message => {
       setMessages(messages => [...messages, message]);
     });
-    socket.on('messages', (data) => {
-      setMessages(data)
+    socket.on('messages', data => {
+      setMessages(data);
     });
-    socket.on('users', (data) => {
-      setUsers(data)
+    socket.on('users', data => {
+      setUsers(data);
     });
     socket.on('logout', () => {
       auth.logout();
-      history.push('/')
+      history.push('/');
     });
-  }, [setMessages, setUsers, auth, history, socket]);
+    socket.on('clearSocket', () => {
+      socket = null;
+    });
+  }, [setMessages, setUsers, auth, history]);
 
-  const sendMessage = (event) => {
+  const sendMessage = event => {
     event.preventDefault();
 
     if (message) {
       socket.emit('sendMessage', message, () => setMessage(''));
     }
-  }
+  };
 
   return (
     <div className="chat-container">
-      <Header socket={socket}/>
+      <Header socket={socket} />
       <main className="chat-main">
         <Sidebar users={users} socket={socket} />
         <ChatWindow messages={messages} />
       </main>
-      <ChatForm message={message} sendMessage={sendMessage} setMessage={setMessage} />
+      <ChatForm
+        message={message}
+        sendMessage={sendMessage}
+        setMessage={setMessage}
+      />
     </div>
   );
-}
+};
