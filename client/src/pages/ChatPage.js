@@ -16,7 +16,6 @@ export const ChatPage = () => {
   if (!item || !socket) {
     item = JSON.parse(localStorage.getItem('userData'));
     const token = item ? item.token : null;
-    console.log(token);
     socket = io(ENDPOINT, {
       query: {
         token,

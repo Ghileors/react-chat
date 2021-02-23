@@ -2,14 +2,14 @@ import React from 'react';
 
 import UsersList from './UsersList';
 
-export default function Sidebar({ users, socket }) {  
+export default function Sidebar({ users, socket }) {
   const muteUser = id => {
     socket.emit('mute', id);
-  }
+  };
 
   const banUser = id => {
     socket.emit('ban', id);
-  }
+  };
 
   return (
     <div className="chat-sidebar">
@@ -17,4 +17,4 @@ export default function Sidebar({ users, socket }) {
       <UsersList users={users} banUser={banUser} muteUser={muteUser} />
     </div>
   );
-};
+}

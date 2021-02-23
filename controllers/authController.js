@@ -27,12 +27,13 @@ exports.login = async (req, res) => {
 
   const nameRegex = /[^a-zA-Z0-9 ]/;
 
-  if (name.length < 3 || nameRegex.test(name)) throw "Name must be atleast 3 characters long and must not contain scecial characters.";
-  if (password.length < 3) throw "Password must be atleast 3 characters long.";
+  if (name.length < 3 || nameRegex.test(name))
+    throw 'Name must be atleast 3 characters long and must not contain scecial characters.';
+  if (password.length < 3) throw 'Password must be atleast 3 characters long.';
 
-  const isAdmin = await UserModel.find();
+  const isAdmin = (await UserModel.find()).length;
 
-  if (!isAdmin.length) {
+  if (!isAdmin) {
     try {
       const admin = new UserModel({
         name,
@@ -52,11 +53,10 @@ exports.login = async (req, res) => {
       );
       res.json({ token });
       return res.status(201).json({ message: 'Admin created' });
-
     } catch (err) {
       console.log(`Error from admin create: ${err.message}`);
     }
-  };
+  }
 
   const candidate = await UserModel.findOne({ name });
   try {
@@ -79,22 +79,21 @@ exports.login = async (req, res) => {
 
       res.json({ token });
       return res.status(201).json({ message: 'User created' });
-    };
+    }
 
     if (candidate.isBanned) {
       try {
         return res.status(401).send({ message: 'Administration banned you.' });
       } catch (err) {
         console.log(err.message);
-      };
-    };
+      }
+    }
 
     if (candidate && !bcrypt.compareSync(password, candidate.password)) {
       try {
         return res.status(404).send({ message: 'Wrong login or password.' });
-      } catch (err) { };
-
-    };
+      } catch (err) {}
+    }
 
     if (candidate && bcrypt.compareSync(password, candidate.password)) {
       try {
@@ -105,14 +104,15 @@ exports.login = async (req, res) => {
             expiresIn: '1 day',
           },
         );
-        await UserModel.findOneAndUpdate({ name: candidate.name }, { isOnline: true });
+        await UserModel.findOneAndUpdate(
+          { name: candidate.name },
+          { isOnline: true },
+        );
         res.json({ token });
         return res.status(200).send({ message: 'User login success.' });
-      } catch (err) { }
-    };
+      } catch (err) {}
+    }
   } catch (err) {
     console.log(`Error from user create: ${err.message}`);
-  };
+  }
 };
-
-
